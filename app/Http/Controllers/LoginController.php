@@ -30,15 +30,12 @@ class LoginController extends Controller
 
     public function storeRegister(UserRegisterRequest $request)
     {
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
-        ];
 
-        $user = new UserService();
-        $user->addUser($data);
-
+        $userData = new User();
+        $userData->name = $request->name;
+        $userData->email = $request->email;
+        $userData->password = bcrypt($request->password);
+        $userData->save();
 
         return redirect()->route('login')
         ->withSuccess('You have successfully registered!');
@@ -57,6 +54,8 @@ class LoginController extends Controller
             $user = User::where('email', $request->email)->first();
 
             if($user->is_admin()){
+                return redirect()->intended('admin/dashboard');
+            }else{
                 return redirect()->intended('admin/dashboard');
             }
         }
